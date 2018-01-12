@@ -1,5 +1,6 @@
 #!/bin/bash
 # Author: JinsYin <github.com/jinsyin>
+# Docker 公司提供的 docker-engine 包名："docker-engine"，与 Nvidia 的 nvidia-docker2 不兼容
 
 set -e
 
