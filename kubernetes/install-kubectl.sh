@@ -1,10 +1,9 @@
 #!/bin/bash
-# Author: JinsYin <jinsyin@github.com>
+# Author: JinsYin <github.com/jinsyin>
 
-# 只要 exit code 为非零，就终止脚本继续执行，等同于 set -o errexit
 set -e
 
-KUBECTL_VERSION="1.8.2"
+K8S_VERSION="1.8.2"
 
 fn::check_permission()
 {
@@ -34,37 +33,45 @@ fn::install_package()
   done
 }
 
-fn::install_kubectl_and_kubefed()
+# kubectl kubefed
+fn::install_k8s_client()
 {
-  local version=${1:-$KUBECTL_VERSION}
+  local version=v${1:-$K8S_VERSION}
+  local components=(kubectl kubefed)
+  
   fn::install_package wget
 
-  if ! fn::command_exists kubectl; then
-    wget -O /tmp/kubernetes-client.tar.gz https://dl.k8s.io/v${version}/kubernetes-client-linux-amd64.tar.gz
-    if [ -s /tmp/kubernetes-client.tar.gz ]; then
-      mkdir -p /tmp/kubernetes-client
-      tar -xzf /tmp/kubernetes-client.tar.gz -C /tmp/kubernetes-client --strip-components=1
-      mv /tmp/kubernetes-client/client/bin/kube* /usr/bin/ && chmod a+x /usr/bin/kube*
-      rm -rf /tmp/kubernetes-client*
+  for component in ${components[@]}; do
+    if ! fn::command_exists ${component}; then
+      rm -rf /tmp/k8s-client* && mkdir -p /tmp/k8s-client 
+      wget -O /tmp/k8s-client.tar.gz https://dl.k8s.io/${version}/kubernetes-client-linux-amd64.tar.gz
+      tar -xzf /tmp/k8s-client.tar.gz -C /tmp/k8s-client --strip-components=1
+      mv /tmp/k8s-client/client/bin/{kubectl,kubefed} /usr/bin/ && chmod a+x /usr/bin/
+      rm -rf /tmp/k8s-client*
     fi
-  fi
+  done  
 }
 
 fn::enable_autocompletion()
 {
-  if fn::command_exists kubectl; then
-    if [ -z "$(grep 'kubectl completion bash' ~/.bashrc)" ]; then
-      echo "source <(kubectl completion bash)" >> ~/.bashrc
-      source ~/.bashrc
-    fi
+  mkdir -p /etc/bash_completion.d
+
+  echo "source <(kubectl completion bash)" > /etc/bash_completion.d/kubectl.bash
+
+  if [ -z "$(grep '^. /etc/bash_completion.d/kubectl.bash' /etc/bash_completion)" ]; then
+    echo ". /etc/bash_completion.d/kubectl.bash" >> /etc/bash_completion
+  fi
+
+  if [ -z "$(grep '^. /etc/bash_completion' ~/.bashrc)" ]; then
+    echo ". /etc/bash_completion" >> /etc/bash_completion
+    source ~/.bashrc
   fi
 }
 
-# Usage: "./install-kubectl.sh" OR "./install-kubectl.sh 1.8.0"
 main()
 {
   fn::check_permission
-  fn::install_kubectl_and_kubefed $@
+  fn::install_k8s_client
   fn::enable_autocompletion
 }
 
