@@ -24,12 +24,12 @@ fn::install_minikube()
   local minikube_version=${1:-$MINIKUBE_VERSION}
   local kubectl_version=${2:-$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)}
 
-  if ! command_exists minikube; then
+  if ! fn::command_exists minikube; then
     curl -Lo minikube https://storage.googleapis.com/minikube/releases/${minikube_version}/minikube-linux-amd64
     chmod +x minikube && mv minikube /usr/local/bin/
   fi
 
-  if ! command_exists kubectl; then
+  if ! fn::command_exists kubectl; then
     curl -Lo kubectl https://storage.googleapis.com/kubernetes-release/release/${kubectl_version}/bin/linux/amd64/kubectl
     chmod +x kubectl && mv kubectl /usr/local/bin/
   fi
