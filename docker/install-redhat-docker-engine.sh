@@ -34,7 +34,7 @@ fn::install_package()
   done
 }
 
-# Usage: fn::install_package wget net-tools
+# Usage: fn::remove_package wget net-tools
 fn::remove_package()
 {
   for package in $@; do
@@ -58,7 +58,7 @@ fn::centos::install_docker()
   local version=${1:-$DOCKER_VERSION}
 
   # 移除非官方的 docker 包
-  yum remove -y docker docker-common container-selinux docker-selinux
+  fn::remove_package docker docker-common container-selinux docker-selinux
 
   # 添加稳定的官方源
   fn::centos::add_repo https://docs.docker.com/v1.13/engine/installation/linux/repo_files/centos/docker.repo
@@ -105,7 +105,7 @@ fn::centos::config_docker()
 
 cat > /usr/lib/systemd/system/docker.service.d/docker.conf <<EOF
 [Service]
-Environment="DOCKER_OPTIONS=--storage-driver=overlay --log-level=error --log-opt max-size=50m --log-opt max-file=5 --exec-opt=native.cgroupdriver=cgroupfs"
+Environment="DOCKER_OPTIONS=--storage-driver=overlay --log-level=error --log-opt max-size=50m --log-opt max-file=5 --exec-opt=native.cgroupdriver=cgroupfs --registry-mirror=https://registry.docker-cn.com"
 EOF
 }
 

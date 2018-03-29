@@ -34,7 +34,7 @@ fn::install_package()
   done
 }
 
-# Usage: fn::install_package wget net-tools
+# Usage: fn::remove_package wget net-tools
 fn::remove_package()
 {
   for package in $@; do
@@ -55,7 +55,7 @@ fn::centos::add_repo()
 
 fn::centos::install_docker()
 {
-  local version=${1:-$DOCKER_VERSION}
+  local version=${1:-$DOCKER_CE_VERSION}
 
   # 移除非官方的 docker 包
   fn::remove_package docker docker-common docker-selinux docker-engine
@@ -63,10 +63,10 @@ fn::centos::install_docker()
   # 添加稳定的官方源
   fn::centos::add_repo https://download.docker.com/linux/centos/docker-ce.repo
 
-  if fn::package_exists docker-ce-${DOCKER_CE_VERSION}*; then exit 1; fi
+  if fn::package_exists docker-ce-${version}*; then exit 1; fi
 
   # 安装指定版本
-  fn::install_package docker-ce-${DOCKER_CE_VERSION}*
+  fn::install_package docker-ce-${version}*
 }
 
 fn::centos::create_systemd_unit()
@@ -104,7 +104,7 @@ fn::centos::config_docker()
 
 cat > /usr/lib/systemd/system/docker.service.d/docker.conf <<EOF
 [Service]
-Environment="DOCKER_OPTIONS=--storage-driver=overlay --log-level=error --log-opt max-size=50m --log-opt max-file=5 --exec-opt=native.cgroupdriver=cgroupfs"
+Environment="DOCKER_OPTIONS=--storage-driver=overlay --log-level=error --log-opt max-size=50m --log-opt max-file=5 --exec-opt=native.cgroupdriver=cgroupfs --registry-mirror=https://registry.docker-cn.com"
 EOF
 }
 

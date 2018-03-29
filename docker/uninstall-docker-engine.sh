@@ -14,7 +14,7 @@ fn::package_exists()
   rpm -q $@ > /dev/null 2>&1
 }
 
-# Usage: fn::install_package wget net-tools
+# Usage: fn::remove_package wget net-tools
 fn::remove_package()
 {
   for package in $@; do
