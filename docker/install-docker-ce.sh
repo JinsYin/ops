@@ -60,8 +60,8 @@ fn::centos::install_docker()
   # 移除非官方的 docker 包
   fn::remove_package docker docker-common docker-selinux docker-engine
 
-  # 添加稳定的官方源
-  fn::centos::add_repo https://download.docker.com/linux/centos/docker-ce.repo
+  # 添加阿里源（官方源：https://download.docker.com/linux/centos/docker-ce.repo）
+  fn::centos::add_repo "https://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo"
 
   if fn::package_exists docker-ce-${version}*; then exit 1; fi
 
