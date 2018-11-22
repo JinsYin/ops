@@ -1,0 +1,49 @@
+[Unit]
+Description=Kubernetes API Server
+Documentation=https://github.com/GoogleCloudPlatform/kubernetes
+After=network.target
+
+[Service]
+Type=notify
+User=root
+ExecStart=/usr/bin/kube-apiserver \
+  --admission-control=Initializers,NamespaceLifecycle,LimitRanger,ServiceAccount,PersistentVolumeLabel,DefaultStorageClass,DefaultTolerationSeconds,NodeRestriction,ResourceQuota \
+  --allow-privileged=true \
+  --apiserver-count=3 \
+  --audit-log-maxage=30 \
+  --audit-log-maxbackup=3 \
+  --audit-log-maxsize=100 \
+  --audit-log-path=/var/log/kubernetes/audit.log \
+  --authorization-mode=Node,RBAC \
+  --enable-swagger-ui=true \
+  --etcd-cafile=/etc/etcd/pki/ca.pem \
+  --etcd-certfile=/etc/etcd/pki/etcd.pem \
+  --etcd-keyfile=/etc/etcd/pki/etcd-key.pem \
+  --etcd-servers=https://172.72.4.11:2379,https://172.72.4.12:2379,https://172.72.4.13:2379 \
+  --storage-backend=etcd3 \
+  --advertise-address=${MASTER_IP} \
+  --bind-address=${MASTER_IP} \
+  --secure-port=6443 \
+  --insecure-bind-address=127.0.0.1 \
+  --insecure-port=8080 \
+  --runtime-config=rbac.authorization.k8s.io/v1 \
+  --service-account-key-file=/etc/kubernetes/pki/ca-key.pem \
+  --service-cluster-ip-range=10.254.0.0/16 \
+  --service-node-port-range=30000-32000 \
+  --tls-cert-file=/etc/kubernetes/pki/kube-apiserver.pem \
+  --tls-private-key-file=/etc/kubernetes/pki/kube-apiserver-key.pem \
+  --client-ca-file=/etc/kubernetes/pki/ca.pem \
+  --kubelet-preferred-address-types=InternalIP,ExternalIP,Hostname \
+  --kubelet-https=true \
+  --kubelet-client-key=/etc/kubernetes/pki/apiserver-kubelet-client-key.pem \
+  --kubelet-client-certificate=/etc/kubernetes/pki/apiserver-kubelet-client.pem \
+  --enable-bootstrap-token-auth=true \
+  --token-auth-file=/etc/kubernetes/token.csv \
+  --event-ttl=1h \
+  --v=2
+Restart=on-failure
+RestartSec=5
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target

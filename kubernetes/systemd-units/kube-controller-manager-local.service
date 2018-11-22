@@ -1,0 +1,25 @@
+[Unit]
+Description=Kubernetes Controller Manager
+Documentation=https://github.com/kubernetes/kubernetes
+
+[Service]
+ExecStart=/usr/bin/kube-controller-manager \
+  --address=127.0.0.1 \
+  --master=http://127.0.0.1:8080 \
+  --allocate-node-cidrs=true \
+  --service-cluster-ip-range=10.254.0.0/16 \
+  --cluster-cidr=10.1.0.0/16 \
+  --cluster-name=kubernetes \
+  --cluster-signing-cert-file=/etc/kubernetes/pki/ca.pem \
+  --cluster-signing-key-file=/etc/kubernetes/pki/ca-key.pem \
+  --service-account-private-key-file=/etc/kubernetes/pki/ca-key.pem \
+  --root-ca-file=/etc/kubernetes/pki/ca.pem \
+  --controllers=*,bootstrapsigner,tokencleaner \
+  --horizontal-pod-autoscaler-sync-period=10s \
+  --leader-elect=true \
+  --v=2 \
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

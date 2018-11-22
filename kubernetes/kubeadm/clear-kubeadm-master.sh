@@ -1,0 +1,1 @@
+clear-kubeadm-master.sh
